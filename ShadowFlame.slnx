@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="ShadowFlame.Tests/ShadowFlame.Tests.csproj" />
+  <Project Path="ShadowFlame/ShadowFlame.csproj" />
+</Solution>
