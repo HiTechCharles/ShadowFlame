@@ -109,6 +109,15 @@ namespace ShadowFlame
         // Public API
         // ---------------------------
 
+        /// <summary>
+        /// Prints the current TTS settings to the console, including whether speech is enabled, the selected voice, rate, and volume.
+        /// This is mostly used for debugging and diagnostic purposes to verify the TTS configuration.
+        /// </summary>
+        public void PrintSettings()
+        {
+            SpeakAndDisplay($"[TTS] SpeechEnabled={_speechEnabled}\n Voice='{synth.Voice?.Name}'\n Rate={synth.Rate} Volume={synth.Volume}");
+        }
+        
         public void Speak(string message)
         {
             if (_speechEnabled && !string.IsNullOrWhiteSpace(message))
@@ -176,7 +185,8 @@ namespace ShadowFlame
             {
                 Console.WriteLine(message);
             }
-            Speak(message);
+            // Respect the configured console speech setting: only speak when enabled.
+            SpeakAsync(message);
         }
 
         public void Stop()
@@ -306,6 +316,21 @@ namespace ShadowFlame
         public async Task InitializeAsync()
         {
             await LoadFromTtsSettingsAsync().ConfigureAwait(false);
+
+            // Diagnostic information to help determine why speech may not be heard
+            try
+            {
+                var voiceName = string.Empty;
+                try { voiceName = synth.Voice?.Name ?? string.Empty; } catch { }
+                var installed = 0;
+                try { installed = synth.GetInstalledVoices().Count; } catch { }
+                Trace.WriteLine($"ConsoleTTS initialized. SpeechEnabled={_speechEnabled}, Voice='{voiceName}', InstalledVoices={installed}, Rate={synth.Rate}, Volume={synth.Volume}");
+                
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex);
+            }
         }
 
         // Note: ConsoleTTS no longer prompts or writes legacy options. It fully relies on
